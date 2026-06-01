@@ -17,3 +17,6 @@ $(TARGET): $(OBJS)
 
 clean:
 	rm -f *.o IO/*.o TADLista/*.o TADHash/*.o TADPatricia/*.o Pesquisa/*.o $(TARGET)
+
+run:
+	./$(TARGET)
