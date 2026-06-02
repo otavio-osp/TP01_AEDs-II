@@ -1,11 +1,33 @@
-// Integrante 1 - Otávio
-// Responsável por: Estruturas Base (Lista Encadeada de ocorrências)
+// Integrante 2 - Pedro
+// Responsável por: Estruturas Base (Lista Encadeada de ocorrências para hash)
+// Baseado no livro "Projeto de Algoritmos" (Ziviani) - Capítulo 3
 
 #ifndef LISTA_H
 #define LISTA_H
 
-// Defina aqui a struct do tipo Item e a struct da lista de ocorrências.
-// Como o Integrante 1, 2 e 3 usarão a mesma estrutura básica, este arquivo
-// precisa ser definido em conjunto.
+// Estrutura que guarda os dados de uma ocorrência (no Ziviani chama-se TipoItem)
+typedef struct {
+    int idDoc;
+    int qtde;
+} TipoItemOcorrencia;
 
-#endif // LISTA_H
+typedef struct TipoCelulaOcorrencia* TipoApontadorOcorrencia;
+
+// Célula da lista encadeada
+typedef struct TipoCelulaOcorrencia {
+    TipoItemOcorrencia Item;
+    TipoApontadorOcorrencia Prox;
+} TipoCelulaOcorrencia;
+
+// Lista de Ocorrências (mantém ponteiro para início e fim para facilitar inserção)
+typedef struct {
+    TipoApontadorOcorrencia Primeiro, Ultimo;
+    int Tamanho;
+} TipoListaOcorrencia;
+
+void FazListaOcorrenciaVazia(TipoListaOcorrencia* Lista);
+void InsereOcorrencia(TipoListaOcorrencia* Lista, int idDoc);
+void LiberaListaOcorrencia(TipoListaOcorrencia* Lista);
+void ImprimeListaOcorrencia(TipoListaOcorrencia* Lista);
+
+#endif
