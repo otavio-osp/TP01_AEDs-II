@@ -4,17 +4,37 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+#include <sys/time.h>
+
 #include "IO/io.h"
 #include "TADLista/lista.h"
 #include "TADHash/hash.h"
 #include "TADPatricia/patricia.h"
 #include "Pesquisa/pesquisa.h"
 
+#define TAMANHO_HASH 97
+
 int main() {
     int opcao;
 
-    // 1. AQUI: Declare e inicialize as suas variáveis e as estruturas 
-    // de dados (como a inicialização da Hash e da raiz da Patricia)
+    // Variáveis de controle de arquivos e coleção
+    int N = 0;                     // Número de documentos
+    char** nomes_arquivos = NULL;  // Vetor para armazenar os nomes das fábulas
+    int* n_i = NULL;               // Vetor que guarda a quantidade de termos de cada documento i
+
+    // Inicialização das Estruturas de Dados.
+    TabelaHash tabela;
+    InicializaTabelaHash(&tabela, TAMANHO_HASH);
+    
+    TipoPesos pesos;
+    GeraPesos(pesos); // Pesos necessários para o Hashing Universal do Pedro
+
+    TipoArvore raiz = NULL; // Inicialização da árvore PATRICIA
+
+    // Variáveis para medição de desempenho (Métricas do Relatório)
+    struct timeval inicio, fim;
+    double tempo_hash, tempo_patricia;
 
     do {
         printf("         SISTEMA DE BUSCA DE FABULAS - MENU\n");
@@ -25,6 +45,7 @@ int main() {
         printf("0. Sair\n");
         printf("\nEscolha uma opcao: ");
         scanf("%d", &opcao);
+        getchar(); // Limpa o buffer do teclado
 
         switch(opcao) {
             case 1:
@@ -53,7 +74,7 @@ int main() {
                 break;
 
             case 0:
-                printf("\nSaindo do sistema... Ate logo!\n");
+                printf("\nSaindo do sistema e liberando memoria...\n");
                 break;
 
             default:
@@ -61,7 +82,21 @@ int main() {
         }
     } while(opcao != 0);
 
-    // 2. Criar funções para liberar a memória alocada dinamicamente (free) das listas, hash e árvore.
+    // Função para liberar a memória alocada dinamicamente (free) das listas, hash e árvore.
+    LiberaTabelaHash(&tabela);
+    
+    // Certifique-se que o Gabriel implemente a liberação dos nós da árvore dele
+    // LiberaPatricia(raiz); 
 
+    if (n_i != NULL) free(n_i);
+    
+    if (nomes_arquivos != NULL) {
+        for (int i = 0; i < N; i++) {
+            free(nomes_arquivos[i]);
+        }
+        free(nomes_arquivos);
+    }
+
+    printf("Ate logo!\n");
     return 0;
 }

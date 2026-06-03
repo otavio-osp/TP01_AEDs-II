@@ -57,13 +57,13 @@ void realizar_busca(char* consulta, TabelaHash* tabela, TipoPesos pesos, int N, 
 
         // Chama a pesquisa da Hash passando a tabela (por referência), o termo e os pesos.
 
-        TipoListaOcorrencia* lista_da_palavra = PesquisaTabelaHash(&tabela, termo, pesos); 
+        TipoListaOcorrencia* lista_da_palavra = PesquisaTabelaHash(tabela, termo, pesos); 
 
         //  Se o resultado não for NULL, a palavra existe em algum documento.
         if (lista_da_palavra != NULL) {
             
             // Obtém o d_j (número de documentos que contém o termo)
-            int dj = TamanhoLista(*lista_da_palavra); 
+            int dj = lista_da_palavra->Tamanho;
             
             // Percorre a lista encadeada padronizada
             TipoCelula *celula = lista_da_palavra->Primeiro->Prox; // Pula o nó cabeça
@@ -93,12 +93,9 @@ void realizar_busca(char* consulta, TabelaHash* tabela, TipoPesos pesos, int N, 
         resultados[i].relevancia = calcular_relevancia_r(n_i[i], somatorio_pesos[i]);
     }
 
-    // Ordena os resultados para mostrar os mais relevantes primeiro
-    void ordenar_resultados_por_relevancia(DocumentoRelevancia* resultados, int tamanho) {
-        // qsort(vetor, tamanho, tamanho_do_item, funcao_de_comparacao)
-        qsort(resultados, tamanho, sizeof(DocumentoRelevancia), comparar_relevancia);
-    }
-    
+    // Ordena os resultados para mostrar os mais relevantes primeiro.
+    ordenar_resultados_por_relevancia(resultados, N);
+
     // Imprime os textos ordenados.
     printf("\n  RESULTADOS DA BUSCA  \n");
     int encontrou_algum = 0;
@@ -115,6 +112,11 @@ void realizar_busca(char* consulta, TabelaHash* tabela, TipoPesos pesos, int N, 
 }
 
 // FUNÇÃO AUXILIAR DE ORDENAÇÃO
+
+void ordenar_resultados_por_relevancia(DocumentoRelevancia* resultados, int tamanho) {
+    // qsort(vetor, tamanho, tamanho_do_item, funcao_de_comparacao)
+    qsort(resultados, tamanho, sizeof(DocumentoRelevancia), comparar_relevancia);
+}
 
 int comparar_relevancia(const void *a, const void *b) {
     DocumentoRelevancia *docA = (DocumentoRelevancia *)a;
