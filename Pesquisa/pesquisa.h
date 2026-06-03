@@ -20,7 +20,7 @@ typedef struct {
 // Funçãp principal de pesquisa (chamada no caso 4 do main).
 
 
-void realizar_busca(char* consulta, TabelaHash tabela, TipoArvore raiz, int N, int* n_i);
+void realizar_busca(char* consulta, TabelaHash* tabela, TipoPesos pesos, int N, int* n_i);
 // Recebe os termos de busca, pesquisa nos índices e imprime os documentos em ordem de relevância.
 
 // (Cálculo do TF-IDF)

@@ -37,7 +37,7 @@ float calcular_relevancia_r(int n_i, float somatorio_pesos) {
 
 // Função Principal de Pesquisa e Ranqueamento
 
-void realizar_busca(char* consulta, TabelaHash tabela, TipoArvore raiz, int N, int* n_i) {
+void realizar_busca(char* consulta, TabelaHash* tabela, TipoPesos pesos, int N, int* n_i); {
     // Inicializa o vetor de resultados e o somatório de pesos para cada documento.
     DocumentoRelevancia resultados[N];
     float somatorio_pesos[N];
@@ -53,7 +53,36 @@ void realizar_busca(char* consulta, TabelaHash tabela, TipoArvore raiz, int N, i
     
     while(termo != NULL) {
         
-        // AQUI ENTRA A INTEGRAÇÃO função de busca do TAD Hash e/ou Patricia.
+        // INTEGRAÇÃO REAL COM A TABELA HASH
+
+        // Chama a pesquisa da Hash passando a tabela (por referência), o termo e os pesos.
+
+        TipoListaOcorrencia* lista_da_palavra = PesquisaTabelaHash(&tabela, termo, pesos); 
+
+        //  Se o resultado não for NULL, a palavra existe em algum documento.
+        if (lista_da_palavra != NULL) {
+            
+            // Obtém o d_j (número de documentos que contém o termo)
+            int dj = TamanhoLista(*lista_da_palavra); 
+            
+            // Percorre a lista encadeada padronizada
+            TipoCelula *celula = lista_da_palavra->Primeiro->Prox; // Pula o nó cabeça
+            
+            while(celula != NULL) {
+                int id_do_documento = celula->Item.idDoc;
+                int f_ji = celula->Item.qtde; // Ocorrências no documento.
+                
+                // Calcula o peso usando a função matemática (w_j,i).
+                float peso = calcular_peso_w(f_ji, N, dj);
+                
+                // Soma esse peso no acumulador do respectivo documento.
+                // (id_do_documento - 1 porque o índice do vetor começa em 0).
+                somatorio_pesos[id_do_documento - 1] += peso;
+                
+                // Avança para o próximo documento da lista.
+                celula = celula->Prox;
+            }
+        }
  
         // Avança para o próximo termo da consulta.
         termo = strtok(NULL, " ");
@@ -65,8 +94,11 @@ void realizar_busca(char* consulta, TabelaHash tabela, TipoArvore raiz, int N, i
     }
 
     // Ordena os resultados para mostrar os mais relevantes primeiro
-    ordenar_resultados_por_relevancia(resultados, N);
-
+    void ordenar_resultados_por_relevancia(DocumentoRelevancia* resultados, int tamanho) {
+        // qsort(vetor, tamanho, tamanho_do_item, funcao_de_comparacao)
+        qsort(resultados, tamanho, sizeof(DocumentoRelevancia), comparar_relevancia);
+    }
+    
     // Imprime os textos ordenados.
     printf("\n  RESULTADOS DA BUSCA  \n");
     int encontrou_algum = 0;
@@ -84,17 +116,13 @@ void realizar_busca(char* consulta, TabelaHash tabela, TipoArvore raiz, int N, i
 
 // FUNÇÃO AUXILIAR DE ORDENAÇÃO
 
-void ordenar_resultados_por_relevancia(DocumentoRelevancia* resultados, int tamanho) {
-    // Algoritmo Bubble Sort simples para ordenar de forma decrescente.
-    // A regra do trabalho exige que os textos com maior ocorrência/relevância apareçam primeiro.
-    for(int i = 0; i < tamanho - 1; i++) {
-        for(int j = 0; j < tamanho - i - 1; j++) {
-            if(resultados[j].relevancia < resultados[j+1].relevancia) {
-                // Troca as posições
-                DocumentoRelevancia temp = resultados[j];
-                resultados[j] = resultados[j+1];
-                resultados[j+1] = temp;
-            }
-        }
-    }
-}  
+int comparar_relevancia(const void *a, const void *b) {
+    DocumentoRelevancia *docA = (DocumentoRelevancia *)a;
+    DocumentoRelevancia *docB = (DocumentoRelevancia *)b;
+
+    // ordem decrescente (maior relevância no topo).
+    if (docA->relevancia < docB->relevancia) return 1;
+    if (docA->relevancia > docB->relevancia) return -1;
+    
+    return 0; // Se forem iguais
+}
