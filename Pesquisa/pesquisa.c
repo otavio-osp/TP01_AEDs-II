@@ -4,10 +4,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h> 
-#include "pesquisa.h"
 #include <string.h>
+#include "pesquisa.h"
 
+// ============================================================================
 // Cálculo do TF-IDF
+// ============================================================================
 
 float calcular_peso_w(int f_ji, int N, int d_j) {
     // Se o termo não aparece em nenhum documento, o peso é 0 para evitar divisão por zero.
@@ -34,41 +36,77 @@ float calcular_relevancia_r(int n_i, float somatorio_pesos) {
     return relevancia;
 }
 
+// ============================================================================
+// Função de comparação para qsort (declarada ANTES de ser usada)
+// ============================================================================
 
+int comparar_relevancia(const void *a, const void *b) {
+    DocumentoRelevancia *docA = (DocumentoRelevancia *)a;
+    DocumentoRelevancia *docB = (DocumentoRelevancia *)b;
+
+    // Ordem decrescente (maior relevância no topo).
+    if (docA->relevancia < docB->relevancia) return 1;
+    if (docA->relevancia > docB->relevancia) return -1;
+    
+    // Desempate por idDoc (menor id primeiro para estabilidade)
+    if (docA->idDoc < docB->idDoc) return -1;
+    if (docA->idDoc > docB->idDoc) return 1;
+
+    return 0;
+}
+
+// ============================================================================
+// Função auxiliar de ordenação
+// ============================================================================
+
+void ordenar_resultados_por_relevancia(DocumentoRelevancia* resultados, int tamanho) {
+    qsort(resultados, tamanho, sizeof(DocumentoRelevancia), comparar_relevancia);
+}
+
+// ============================================================================
 // Função Principal de Pesquisa e Ranqueamento
+// ============================================================================
 
-void realizar_busca(char* consulta, TabelaHash* tabela, TipoPesos pesos, int N, int* n_i); {
+void realizar_busca(char* consulta, TabelaHash* tabela, TipoPesos pesos, int N, int* n_i, char** nomes_arquivos) {
     // Inicializa o vetor de resultados e o somatório de pesos para cada documento.
-    DocumentoRelevancia resultados[N];
-    float somatorio_pesos[N];
-    for(int i = 0; i < N; i++) {
-        resultados[i].idDoc = i + 1; // Assumindo que os idDocs comecem em 1
-        resultados[i].relevancia = 0.0;
-        somatorio_pesos[i] = 0.0;
+    DocumentoRelevancia* resultados = (DocumentoRelevancia*) malloc(N * sizeof(DocumentoRelevancia));
+    float* somatorio_pesos = (float*) calloc(N, sizeof(float));
+
+    if (resultados == NULL || somatorio_pesos == NULL) {
+        printf("Erro: Falha na alocacao de memoria para a busca.\n");
+        free(resultados);
+        free(somatorio_pesos);
+        return;
     }
 
+    for (int i = 0; i < N; i++) {
+        resultados[i].idDoc = i + 1; // idDocs começam em 1
+        resultados[i].relevancia = 0.0;
+    }
+
+    // Conta quantos termos de busca foram informados
+    int num_termos_busca = 0;
+
     // Separar a string de consulta em palavras individuais (termos de busca).
-    // O delimitador " " (espaço) separa as palavras.
     char* termo = strtok(consulta, " ");
     
-    while(termo != NULL) {
+    while (termo != NULL) {
+        num_termos_busca++;
         
-        // INTEGRAÇÃO REAL COM A TABELA HASH
-
-        // Chama a pesquisa da Hash passando a tabela (por referência), o termo e os pesos.
-
+        // INTEGRAÇÃO COM A TABELA HASH
+        // Chama a pesquisa da Hash passando a tabela, o termo e os pesos.
         TipoListaOcorrencia* lista_da_palavra = PesquisaTabelaHash(tabela, termo, pesos); 
 
-        //  Se o resultado não for NULL, a palavra existe em algum documento.
+        // Se o resultado não for NULL, a palavra existe em algum documento.
         if (lista_da_palavra != NULL) {
             
             // Obtém o d_j (número de documentos que contém o termo)
             int dj = lista_da_palavra->Tamanho;
             
-            // Percorre a lista encadeada padronizada
-            TipoCelula *celula = lista_da_palavra->Primeiro->Prox; // Pula o nó cabeça
+            // Percorre a lista encadeada de ocorrências (pula o nó cabeça)
+            TipoCelulaOcorrencia *celula = lista_da_palavra->Primeiro->Prox;
             
-            while(celula != NULL) {
+            while (celula != NULL) {
                 int id_do_documento = celula->Item.idDoc;
                 int f_ji = celula->Item.qtde; // Ocorrências no documento.
                 
@@ -77,7 +115,9 @@ void realizar_busca(char* consulta, TabelaHash* tabela, TipoPesos pesos, int N, 
                 
                 // Soma esse peso no acumulador do respectivo documento.
                 // (id_do_documento - 1 porque o índice do vetor começa em 0).
-                somatorio_pesos[id_do_documento - 1] += peso;
+                if (id_do_documento >= 1 && id_do_documento <= N) {
+                    somatorio_pesos[id_do_documento - 1] += peso;
+                }
                 
                 // Avança para o próximo documento da lista.
                 celula = celula->Prox;
@@ -88,43 +128,56 @@ void realizar_busca(char* consulta, TabelaHash* tabela, TipoPesos pesos, int N, 
         termo = strtok(NULL, " ");
     }
 
+    // Verifica se algum termo foi informado
+    if (num_termos_busca == 0) {
+        printf("\nNenhum termo de busca informado.\n");
+        free(resultados);
+        free(somatorio_pesos);
+        return;
+    }
+
     // Após iterar por todas as palavras da consulta, calcular a Relevância Final r(i).
-    for(int i = 0; i < N; i++) {
+    for (int i = 0; i < N; i++) {
         resultados[i].relevancia = calcular_relevancia_r(n_i[i], somatorio_pesos[i]);
     }
 
     // Ordena os resultados para mostrar os mais relevantes primeiro.
     ordenar_resultados_por_relevancia(resultados, N);
 
-    // Imprime os textos ordenados.
-    printf("\n  RESULTADOS DA BUSCA  \n");
+    // ========================================================================
+    // Impressão dos resultados
+    // ========================================================================
+    printf("\n");
+    printf("========================================\n");
+    printf("       RESULTADOS DA BUSCA\n");
+    printf("========================================\n");
+
     int encontrou_algum = 0;
-    for(int i = 0; i < N; i++) {
-        if(resultados[i].relevancia > 0) {
-            printf("Documento ID %d - Relevancia: %.4f\n", resultados[i].idDoc, resultados[i].relevancia);
+    int posicao = 1;
+
+    for (int i = 0; i < N; i++) {
+        if (resultados[i].relevancia > 0) {
+            int idx = resultados[i].idDoc - 1;
+            printf(" %d. [Doc %d] %-20s  Relevancia: %.4f\n", 
+                   posicao, 
+                   resultados[i].idDoc, 
+                   (nomes_arquivos != NULL) ? nomes_arquivos[idx] : "(sem nome)",
+                   resultados[i].relevancia);
             encontrou_algum = 1;
+            posicao++;
         }
     }
     
-    if(!encontrou_algum) {
-        printf("Nenhum documento relevante encontrado para a busca.\n");
+    if (!encontrou_algum) {
+        printf(" Nenhum documento relevante encontrado para a busca.\n");
     }
-}
 
-// FUNÇÃO AUXILIAR DE ORDENAÇÃO
+    printf("========================================\n");
+    printf(" Termos pesquisados: %d\n", num_termos_busca);
+    printf(" Comparacoes na pesquisa (Hash): %d\n", tabela->comparacoes_pesquisa);
+    printf("========================================\n\n");
 
-void ordenar_resultados_por_relevancia(DocumentoRelevancia* resultados, int tamanho) {
-    // qsort(vetor, tamanho, tamanho_do_item, funcao_de_comparacao)
-    qsort(resultados, tamanho, sizeof(DocumentoRelevancia), comparar_relevancia);
-}
-
-int comparar_relevancia(const void *a, const void *b) {
-    DocumentoRelevancia *docA = (DocumentoRelevancia *)a;
-    DocumentoRelevancia *docB = (DocumentoRelevancia *)b;
-
-    // ordem decrescente (maior relevância no topo).
-    if (docA->relevancia < docB->relevancia) return 1;
-    if (docA->relevancia > docB->relevancia) return -1;
-    
-    return 0; // Se forem iguais
+    // Libera memória alocada
+    free(resultados);
+    free(somatorio_pesos);
 }

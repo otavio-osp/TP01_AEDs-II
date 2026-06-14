@@ -1,0 +1,12 @@
+# Executáveis
+*.exe
+tp01_busca
+test_hash
+
+# Objetos de compilação
+*.o
+
+# Arquivos temporários do editor
+*.swp
+*.swo
+*~
