@@ -3,7 +3,7 @@ TRABALHO PRATICO 1 - ALGORITMOS E ESTRUTURAS DE DADOS II
 
 SISTEMA DE BUSCA DE FABULAS (INDICES INVERTIDOS: PATRICIA E HASH)
 DESENVOLVEDORES:
-- [Nome do Integrante 1] (I/O e Pre-processamento)
+- Otávio Soares Pedroso - 6593 (I/O e Pre-processamento)
 - Pedro Mendes Gonzaga-6563 (TAD Hash)
 - [Nome do Integrante 3] (TAD Patricia)
 - Tomás Viana Resende-6556 (Motor de Busca e Integracao)
