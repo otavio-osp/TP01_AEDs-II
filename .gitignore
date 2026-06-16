@@ -10,3 +10,6 @@ test_hash
 *.swp
 *.swo
 *~
+
+# Configuração local do editor
+.vscode/

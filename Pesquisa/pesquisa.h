@@ -7,12 +7,13 @@
 #include "../TADLista/lista.h"     
 #include "../TADHash/hash.h"       
 #include "../TADPatricia/patricia.h" 
+#include "../IO/io.h"
 
 // Estrutura auxiliar para armazenar a pontuação de relevância r(i) de um documento. 
 // Será usada para ordenar os resultados no final.
 
 typedef struct {
-    int idDoc;
+    int idDoc;          // índice 0-indexed do documento
     float relevancia;
 } DocumentoRelevancia;
 
@@ -23,10 +24,9 @@ typedef struct {
 //   consulta       - string com os termos separados por espaço
 //   tabela         - ponteiro para a tabela hash já populada
 //   pesos          - vetor de pesos do hashing universal
-//   N              - número total de documentos na coleção
+//   colecao        - ponteiro para a coleção de documentos (nomes e N)
 //   n_i            - vetor com a quantidade de termos de cada documento i
-//   nomes_arquivos - vetor com os nomes dos arquivos das fábulas
-void realizar_busca(char* consulta, TabelaHash* tabela, TipoPesos pesos, int N, int* n_i, char** nomes_arquivos);
+void realizar_busca(char* consulta, TabelaHash* tabela, TipoPesos pesos, const Colecao* colecao, int* n_i);
 
 // (Cálculo do TF-IDF)
 
