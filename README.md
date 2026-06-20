@@ -5,7 +5,7 @@ SISTEMA DE BUSCA DE FABULAS (INDICES INVERTIDOS: PATRICIA E HASH)
 DESENVOLVEDORES:
 - Otávio Soares Pedroso - 6593 (I/O e Pre-processamento)
 - Pedro Mendes Gonzaga-6563 (TAD Hash)
-- Gbriel Marcus de Oliveira Félix (TAD Patricia)
+- Gabriel Marcus de Oliveira Félix (TAD Patricia)
 - Tomás Viana Resende-6556 (Motor de Busca e Integracao)
 
 1. DESCRICAO DO PROGRAMA
