@@ -1,16 +1,43 @@
-// Integrante 3 - Gabriel
-// Responsável por: Módulo TAD PATRICIA
-
 #ifndef PATRICIA_H
 #define PATRICIA_H
 
-#include "../TADLista/lista.h"
+#include "processador.h"
 
-// Stub: permite que o main.c compile mesmo sem a implementação completa.
-// O Gabriel deve substituir por sua struct real quando implementar.
-typedef void* TipoArvore;
+int comparacoes_patricia_insercao ;
+int comparacoes_patricia_busca ; 
 
-// Assinaturas para operações na Árvore PATRICIA adaptada para strings completas.
-// (A serem implementadas pelo Gabriel)
 
-#endif // PATRICIA_H
+
+#define D 13 // Bits em um caractere
+
+typedef enum {
+    interno,
+    externo
+} NoType;
+
+typedef unsigned int Index;
+typedef unsigned char Dib;
+
+typedef struct NoPatricia* ArvorePat;
+typedef struct NoPatricia {
+    NoType nt;
+    union {
+        struct {
+            Index index;
+            ArvorePat esq, dir;
+        } noInterno;
+        struct {
+            Palavra* palavra;
+        } NoExterno;
+    } No;
+} NoPatricia;
+
+// Protótipos das funções públicas da árvore Patricia
+ArvorePat inserir(ArvorePat* t, const char* texto_palavra, int idDoc);
+ArvorePat construir_indice_patricia(ListaArquivos* lista);
+Palavra* buscar_palavra(ArvorePat arvore, const char* texto_palavra);
+void liberar_indice_patricia(ArvorePat arvore);
+
+void imprimir_patricia(ArvorePat no, ListaArquivos* lista);
+
+#endif
