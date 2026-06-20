@@ -121,17 +121,20 @@ int main() {
                     break;
                 }
 
-                // Reinicializa a tabela hash se já foi usada
+                // Reinicializa a tabela hash e a patricia se já foi usada
                 if (indices_construidos) {
                     LiberaTabelaHash(&tabela);
                     InicializaTabelaHash(&tabela, TAMANHO_HASH);
+                    LiberaPatricia(raiz);
+                    InicializaPatricia(&raiz);
                     if (n_i != NULL) { free(n_i); n_i = NULL; }
                 }
 
                 t_inicio = clock();
 
-                printf("Construindo indices invertidos (Hash)...\n\n");
+                printf("Construindo indices invertidos (Hash e Patricia)...\n\n");
                 ProcessaColecaoHash(CAMINHO_FABULAS, &colecao, &sw, &tabela, pesos);
+                ProcessaColecaoPatricia(CAMINHO_FABULAS, &colecao, &sw, &raiz);
 
                 // Calcula n_i a partir da hash já populada
                 n_i = calcular_n_i(&tabela, colecao.N);
@@ -165,7 +168,12 @@ int main() {
                 printf("\n=== INDICE INVERTIDO (TABELA HASH) ===\n");
                 printf("(Formato: palavra <qtde, idDoc>)\n\n");
                 ImprimeTabelaHashOrdenada(&tabela);
-                printf("\n=== FIM DO INDICE ===\n");
+                printf("\n=== FIM DO INDICE HASH ===\n");
+
+                printf("\n=== INDICE INVERTIDO (ARVORE PATRICIA) ===\n");
+                printf("(Formato: palavra <qtde, idDoc>)\n\n");
+                ImprimePatricia(raiz);
+                printf("\n=== FIM DO INDICE PATRICIA ===\n");
                 break;
 
             case 4:
@@ -226,8 +234,7 @@ int main() {
     // Liberação de memória
     LiberaTabelaHash(&tabela);
 
-    // Quando o Gabriel implementar: LiberaPatricia(raiz);
-    (void)raiz;
+    LiberaPatricia(raiz);
 
     if (n_i != NULL) free(n_i);
 
