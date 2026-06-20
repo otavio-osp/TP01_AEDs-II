@@ -1,43 +1,50 @@
 #ifndef PATRICIA_H
 #define PATRICIA_H
 
-#include "processador.h"
+#include "../TADLista/lista.h"
 
-int comparacoes_patricia_insercao ;
-int comparacoes_patricia_busca ; 
+// Contadores para análise de complexidade (para uso externo)
+extern int comparacoes_patricia_insercao;
+extern int comparacoes_patricia_busca; 
 
-
-
-#define D 13 // Bits em um caractere
-
+// Enum para identificar o tipo do nó
 typedef enum {
-    interno,
-    externo
-} NoType;
+    Interno,
+    Externo
+} TipoNo;
 
 typedef unsigned int Index;
-typedef unsigned char Dib;
 
-typedef struct NoPatricia* ArvorePat;
+typedef struct NoPatricia* TipoArvore;
+
 typedef struct NoPatricia {
-    NoType nt;
+    TipoNo nt;
     union {
         struct {
-            Index index;
-            ArvorePat esq, dir;
-        } noInterno;
+            Index index; // Índice do caractere divergente
+            char char_comparacao; // Caractere usado para a ramificação (maior caractere)
+            TipoArvore esq, dir;
+        } NInterno;
         struct {
-            Palavra* palavra;
-        } NoExterno;
-    } No;
+            char* Chave; // A palavra armazenada
+            TipoListaOcorrencia Ocorrencias; // Lista de ocorrências
+        } NExterno;
+    } NO;
 } NoPatricia;
 
-// Protótipos das funções públicas da árvore Patricia
-ArvorePat inserir(ArvorePat* t, const char* texto_palavra, int idDoc);
-ArvorePat construir_indice_patricia(ListaArquivos* lista);
-Palavra* buscar_palavra(ArvorePat arvore, const char* texto_palavra);
-void liberar_indice_patricia(ArvorePat arvore);
+// Inicializa a árvore Patricia
+void InicializaPatricia(TipoArvore* t);
 
-void imprimir_patricia(ArvorePat no, ListaArquivos* lista);
+// Insere uma palavra na árvore (ou adiciona a ocorrência caso já exista)
+void InserePatricia(TipoArvore* t, const char* chave, int idDoc);
+
+// Pesquisa uma palavra na árvore e retorna sua lista de ocorrências (ou NULL se não encontrar)
+TipoListaOcorrencia* PesquisaPatricia(TipoArvore t, const char* chave);
+
+// Imprime a árvore (em ordem alfabética)
+void ImprimePatricia(TipoArvore t);
+
+// Libera toda a memória associada à árvore Patricia
+void LiberaPatricia(TipoArvore t);
 
 #endif

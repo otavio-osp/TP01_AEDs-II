@@ -186,8 +186,7 @@ void ProcessaDocumentoPatricia(const char* caminhoPasta, const char* nomeArquivo
         }
 
         // Palavra válida — insere diretamente na Árvore Patricia
-        // TODO: Gabriel Implementar isso
-        // InserePatricia(arvore, palavra, idDoc);
+        InserePatricia(arvore, palavra, idDoc);
     }
 
     fclose(fp);
