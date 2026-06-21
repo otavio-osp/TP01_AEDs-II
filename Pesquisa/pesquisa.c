@@ -150,7 +150,7 @@ void realizar_busca(char *consulta, TabelaHash *tabela, TipoPesos pesos,
   ordenar_resultados_por_relevancia(resultados, N);
 
   // Impressão dos resultados
-  printf("\nRESULTADOS DA BUSCA\n");
+  printf("\nRESULTADOS DA BUSCA (HASH)\n");
 
   int encontrou_algum = 0;
   int posicao = 1;
@@ -176,6 +176,98 @@ void realizar_busca(char *consulta, TabelaHash *tabela, TipoPesos pesos,
   printf("\n");
 
   // Libera memória alocada
+  free(resultados);
+  free(somatorio_pesos);
+}
+
+// Função de Pesquisa via PATRICIA e Ranqueamento TF-IDF
+
+void realizar_busca_patricia(char *consulta, TipoArvore raiz,
+                             const Colecao *colecao, int *n_i) {
+  int N = colecao->N;
+
+  DocumentoRelevancia *resultados =
+      (DocumentoRelevancia *)malloc(N * sizeof(DocumentoRelevancia));
+  float *somatorio_pesos = (float *)calloc(N, sizeof(float));
+
+  if (resultados == NULL || somatorio_pesos == NULL) {
+    printf("Erro: Falha na alocacao de memoria para a busca.\n");
+    free(resultados);
+    free(somatorio_pesos);
+    return;
+  }
+
+  for (int i = 0; i < N; i++) {
+    resultados[i].idDoc = i;
+    resultados[i].relevancia = 0.0;
+  }
+
+  int num_termos_busca = 0;
+  char *termo = strtok(consulta, " ");
+
+  while (termo != NULL) {
+    num_termos_busca++;
+
+    // INTEGRAÇÃO COM A ÁRVORE PATRICIA
+    TipoListaOcorrencia *lista_da_palavra = PesquisaPatricia(raiz, termo);
+
+    if (lista_da_palavra != NULL) {
+      int dj = lista_da_palavra->Tamanho;
+      TipoCelulaOcorrencia *celula = lista_da_palavra->Primeiro->Prox;
+
+      while (celula != NULL) {
+        int id_do_documento = celula->Item.idDoc;
+        int f_ji = celula->Item.qtde;
+        float peso = calcular_peso_w(f_ji, N, dj);
+
+        if (id_do_documento >= 0 && id_do_documento < N) {
+          somatorio_pesos[id_do_documento] += peso;
+        }
+        celula = celula->Prox;
+      }
+    }
+    termo = strtok(NULL, " ");
+  }
+
+  if (num_termos_busca == 0) {
+    printf("\nNenhum termo de busca informado.\n");
+    free(resultados);
+    free(somatorio_pesos);
+    return;
+  }
+
+  for (int i = 0; i < N; i++) {
+    resultados[i].relevancia =
+        calcular_relevancia_r(n_i[i], somatorio_pesos[i]);
+  }
+
+  ordenar_resultados_por_relevancia(resultados, N);
+
+  printf("\nRESULTADOS DA BUSCA (PATRICIA)\n");
+
+  int encontrou_algum = 0;
+  int posicao = 1;
+
+  for (int i = 0; i < N; i++) {
+    if (resultados[i].relevancia > 0) {
+      int idx = resultados[i].idDoc;
+      printf(" %d. [Doc %d] %-20s  Relevancia: %.4f\n", posicao,
+             idx + 1,
+             colecao->nomes[idx],
+             resultados[i].relevancia);
+      encontrou_algum = 1;
+      posicao++;
+    }
+  }
+
+  if (!encontrou_algum) {
+    printf(" Nenhum documento relevante encontrado para a busca.\n");
+  }
+
+  printf(" Termos pesquisados: %d\n", num_termos_busca);
+  printf(" Comparacoes na pesquisa (Patricia): %d\n", comparacoes_patricia_busca);
+  printf("\n");
+
   free(resultados);
   free(somatorio_pesos);
 }

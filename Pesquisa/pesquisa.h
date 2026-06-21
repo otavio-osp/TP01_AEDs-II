@@ -47,4 +47,8 @@ int comparar_relevancia(const void *a, const void *b);
 // Ordena o vetor de DocumentoRelevancia de forma DECRESCENTE (maior relevância primeiro).
 void ordenar_resultados_por_relevancia(DocumentoRelevancia* resultados, int tamanho);
 
+// Função de pesquisa via PATRICIA (chamada no caso 4 do main).
+// Mesma lógica de TF-IDF, porém busca os termos na árvore Patricia.
+void realizar_busca_patricia(char* consulta, TipoArvore raiz, const Colecao* colecao, int* n_i);
+
 #endif
