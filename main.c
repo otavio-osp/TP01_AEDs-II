@@ -17,7 +17,7 @@
 #define MAX_LINHA 1024
 #define CAMINHO_FABULAS "Fabulas"
 
-// Calcula n_i (total de termos indexados) para cada documento
+// Calcula n_i (total de termos DISTINTOS) para cada documento
 // a partir dos dados já inseridos na tabela hash.
 int* calcular_n_i(TabelaHash* tabela, int N) {
     int* n_i = (int*) calloc(N, sizeof(int));
@@ -30,7 +30,7 @@ int* calcular_n_i(TabelaHash* tabela, int N) {
             while (cel != NULL) {
                 int doc = cel->Item.idDoc;
                 if (doc >= 0 && doc < N) {
-                    n_i[doc] += cel->Item.qtde;
+                    n_i[doc] += 1;  // Conta termos DISTINTOS
                 }
                 cel = cel->Prox;
             }
@@ -130,6 +130,9 @@ int main() {
                     if (n_i != NULL) { free(n_i); n_i = NULL; }
                 }
 
+                // Reseta contadores da Patricia
+                comparacoes_patricia_insercao = 0;
+
                 t_inicio = clock();
 
                 printf("Construindo indices invertidos (Hash e Patricia)...\n\n");
@@ -152,8 +155,9 @@ int main() {
                 tempo_gasto = ((double)(t_fim - t_inicio)) / CLOCKS_PER_SEC;
 
                 printf("\nIndices construidos com sucesso!\n");
-                printf("Tempo de construcao (Hash): %.4f segundos\n", tempo_gasto);
-                printf("Comparacoes na insercao: %d\n", tabela.comparacoes_insercao);
+                printf("Tempo de construcao: %.4f segundos\n", tempo_gasto);
+                printf("Comparacoes na insercao (Hash): %d\n", tabela.comparacoes_insercao);
+                printf("Comparacoes na insercao (Patricia): %d\n", comparacoes_patricia_insercao);
                 indices_construidos = 1;
                 break;
 
@@ -184,8 +188,9 @@ int main() {
                     break;
                 }
 
-                // Zera o contador de comparações para medir a pesquisa atual
+                // Zera os contadores de comparações para medir a pesquisa atual
                 tabela.comparacoes_pesquisa = 0;
+                comparacoes_patricia_busca = 0;
 
                 char consulta[MAX_LINHA];
                 printf("Digite os termos de busca (separados por espaco): ");
@@ -215,11 +220,23 @@ int main() {
                     break;
                 }
 
+                // Faz cópia da consulta para a busca Patricia (strtok modifica a string)
+                char consulta_patricia[MAX_LINHA];
+                strcpy(consulta_patricia, consulta);
+
+                // === BUSCA VIA HASH ===
                 t_inicio = clock();
                 realizar_busca(consulta, &tabela, pesos, &colecao, n_i);
                 t_fim = clock();
                 tempo_gasto = ((double)(t_fim - t_inicio)) / CLOCKS_PER_SEC;
-                printf("Tempo da busca: %.4f segundos\n", tempo_gasto);
+                printf("Tempo da busca (Hash): %.4f segundos\n", tempo_gasto);
+
+                // === BUSCA VIA PATRICIA ===
+                t_inicio = clock();
+                realizar_busca_patricia(consulta_patricia, raiz, &colecao, n_i);
+                t_fim = clock();
+                tempo_gasto = ((double)(t_fim - t_inicio)) / CLOCKS_PER_SEC;
+                printf("Tempo da busca (Patricia): %.4f segundos\n", tempo_gasto);
                 break;
 
             case 0:
