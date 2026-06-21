@@ -13,3 +13,7 @@ test_hash
 
 # Configuração local do editor
 .vscode/
+
+# Arquivos de teste isolados
+main_hash.c
+teste_io.c
