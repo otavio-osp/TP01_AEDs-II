@@ -167,7 +167,7 @@ void ImprimePatricia(TipoArvore t) {
         ImprimePatricia(t->NO.NInterno.esq);
         ImprimePatricia(t->NO.NInterno.dir);
     } else {
-        printf("%s:\n", t->NO.NExterno.Chave);
+        printf("%s ", t->NO.NExterno.Chave);
         ImprimeListaOcorrencia(&(t->NO.NExterno.Ocorrencias));
     }
 }
