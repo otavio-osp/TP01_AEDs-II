@@ -3,11 +3,11 @@
 
 #include "../TADLista/lista.h"
 
-// Contadores para análise de complexidade (para uso externo)
+// contadores globais pro relatorio de complexidade
 extern int comparacoes_patricia_insercao;
 extern int comparacoes_patricia_busca; 
 
-// Enum para identificar o tipo do nó
+// diferencia se o no eh interno ou folha
 typedef enum {
     Interno,
     Externo
@@ -21,30 +21,30 @@ typedef struct NoPatricia {
     TipoNo nt;
     union {
         struct {
-            Index index; // Índice do caractere divergente
-            char char_comparacao; // Caractere usado para a ramificação (maior caractere)
+            Index index; // posicao do char q deu diferenca
+            char char_comparacao; // guarda o char pra fazer a regra do < ou >=
             TipoArvore esq, dir;
         } NInterno;
         struct {
-            char* Chave; // A palavra armazenada
-            TipoListaOcorrencia Ocorrencias; // Lista de ocorrências
+            char* Chave; // a palavra msm (so fica na folha)
+            TipoListaOcorrencia Ocorrencias; // lista de doc IDs
         } NExterno;
     } NO;
 } NoPatricia;
 
-// Inicializa a árvore Patricia
+// inicializa a arvore vazia
 void InicializaPatricia(TipoArvore* t);
 
-// Insere uma palavra na árvore (ou adiciona a ocorrência caso já exista)
+// insere a palavra ou so adiciona o idDoc se ela ja existir
 void InserePatricia(TipoArvore* t, const char* chave, int idDoc);
 
-// Pesquisa uma palavra na árvore e retorna sua lista de ocorrências (ou NULL se não encontrar)
+// busca a palavra e devolve a lista de docs (null se nao achar)
 TipoListaOcorrencia* PesquisaPatricia(TipoArvore t, const char* chave);
 
-// Imprime a árvore (em ordem alfabética)
+// imprime as palavras em ordem alfabetica
 void ImprimePatricia(TipoArvore t);
 
-// Libera toda a memória associada à árvore Patricia
+// da free em tudo pra n dar leak no valgrind
 void LiberaPatricia(TipoArvore t);
 
 #endif
