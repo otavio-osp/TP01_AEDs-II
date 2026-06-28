@@ -10,9 +10,9 @@ void InicializaPatricia(TipoArvore* t) {
     *t = NULL;
 }
 
-// Retorna o caractere na posição i. Trata strings mais curtas que i retornando '\0'
-static inline char charAt(const char* s, int len, Index i) {
-    if (i >= (Index)len) return '\0';
+// retorna o char na posicao i. se a palavra for menor, retorna '\0'
+static inline char charAt(const char* s, size_t len, Index i) {
+    if (i >= len) return '\0';
     return s[i];
 }
 
@@ -48,15 +48,15 @@ static TipoArvore CriaNoExterno(const char* chave, int idDoc) {
 TipoListaOcorrencia* PesquisaPatricia(TipoArvore t, const char* chave) {
     if (t == NULL) return NULL;
     
-    int len = strlen(chave);
+    size_t len = strlen(chave);
     TipoArvore p = t;
     
-    // Desce na árvore comparando os caracteres nos índices de divergência
+    // desce na arvore testando os caracteres nos indices
     while (p->nt == Interno) {
         comparacoes_patricia_busca++;
         char c = charAt(chave, len, p->NO.NInterno.index);
         
-        // Regra de roteamento: < vai para a esquerda, >= vai para a direita
+        // < vai pra esquerda, >= vai pra direita
         if (c < p->NO.NInterno.char_comparacao) {
             p = p->NO.NInterno.esq;
         } else {
@@ -64,26 +64,56 @@ TipoListaOcorrencia* PesquisaPatricia(TipoArvore t, const char* chave) {
         }
     }
     
-    // Chegou em um nó externo, verifica se a palavra é exatamente a buscada
+    // achou uma folha, confere se eh a palavra certa
     comparacoes_patricia_busca++; 
     if (strcmp(chave, p->NO.NExterno.Chave) == 0) {
         return &(p->NO.NExterno.Ocorrencias);
     }
     
-    return NULL; // Palavra não encontrada
+    return NULL; // nao achou
+}
+
+// funcao auxiliar recursiva do ziviani para encaixar o no interno
+static TipoArvore InsereEntre(const char* chave, int idDoc, TipoArvore t, Index i, char char_comp) {
+    size_t len = strlen(chave);
+    
+    // se for folha ou o indice do no interno for maior q o i, encaixa aqui
+    if (t->nt == Externo || t->NO.NInterno.index > i) {
+        TipoArvore novoInterno = CriaNoInterno(i, char_comp, NULL, NULL);
+        TipoArvore novoExterno = CriaNoExterno(chave, idDoc);
+        
+        char charK = charAt(chave, len, i);
+        if (charK < char_comp) {
+            novoInterno->NO.NInterno.esq = novoExterno;
+            novoInterno->NO.NInterno.dir = t;
+        } else {
+            novoInterno->NO.NInterno.esq = t;
+            novoInterno->NO.NInterno.dir = novoExterno;
+        }
+        return novoInterno;
+    } else {
+        // senao, continua descendo com as regras de comparacao
+        char c = charAt(chave, len, t->NO.NInterno.index);
+        if (c < t->NO.NInterno.char_comparacao) {
+            t->NO.NInterno.esq = InsereEntre(chave, idDoc, t->NO.NInterno.esq, i, char_comp);
+        } else {
+            t->NO.NInterno.dir = InsereEntre(chave, idDoc, t->NO.NInterno.dir, i, char_comp);
+        }
+        return t;
+    }
 }
 
 void InserePatricia(TipoArvore* t, const char* chave, int idDoc) {
-    // 1. Árvore vazia: insere primeiro nó externo
+    // arvore vazia, cria a primeira folha
     if (*t == NULL) {
         *t = CriaNoExterno(chave, idDoc);
         return;
     }
     
-    int lenK = strlen(chave);
+    size_t lenK = strlen(chave);
     TipoArvore p = *t;
     
-    // 2. Busca o nó folha mais próximo onde a palavra deveria estar
+    // desce ate a folha mais parecida
     while (p->nt == Interno) {
         comparacoes_patricia_insercao++;
         char c = charAt(chave, lenK, p->NO.NInterno.index);
@@ -94,70 +124,30 @@ void InserePatricia(TipoArvore* t, const char* chave, int idDoc) {
         }
     }
     
-    // 3. Verifica se a palavra já existe
+    // checa se a palavra ja ta la
     comparacoes_patricia_insercao++;
     if (strcmp(chave, p->NO.NExterno.Chave) == 0) {
-        // Palavra já existe, apenas adiciona a ocorrência
+        // so adiciona a ocorrencia do documento
         InsereOcorrencia(&(p->NO.NExterno.Ocorrencias), idDoc);
         return;
     }
     
-    // 4. Encontra o primeiro índice 'i' onde a nova palavra difere da palavra encontrada na folha
+    // procura qual o indice do char diferente
     Index i = 0;
-    int lenL = strlen(p->NO.NExterno.Chave);
+    size_t lenL = strlen(p->NO.NExterno.Chave);
     while (charAt(chave, lenK, i) == charAt(p->NO.NExterno.Chave, lenL, i)) {
         comparacoes_patricia_insercao++;
         i++;
     }
-    comparacoes_patricia_insercao++; // A última comparação que deu diferente
+    comparacoes_patricia_insercao++; // ultima comparacao que falhou
     
-    // 5. Determina o caractere de comparação para o novo nó interno
+    // pega o maior char para usar de regra no no interno
     char charK = charAt(chave, lenK, i);
     char charL = charAt(p->NO.NExterno.Chave, lenL, i);
-    char char_comp = (charK > charL) ? charK : charL; // Guarda o maior caractere
+    char char_comp = (charK > charL) ? charK : charL;
     
-    // 6. Cria o novo nó externo
-    TipoArvore novoExterno = CriaNoExterno(chave, idDoc);
-    
-    // 7. Busca novamente a posição para inserir o novo nó interno.
-    // Paramos apenas quando encontrarmos um nó folha OU um nó interno com índice > i.
-    // Isso é vital porque podemos ter vários nós com o MESMO índice i (BST de caracteres).
-    TipoArvore pai = NULL;
-    TipoArvore atual = *t;
-    
-    while (atual->nt == Interno && atual->NO.NInterno.index <= i) {
-        pai = atual;
-        char c = charAt(chave, lenK, atual->NO.NInterno.index);
-        if (c < atual->NO.NInterno.char_comparacao) {
-            atual = atual->NO.NInterno.esq;
-        } else {
-            atual = atual->NO.NInterno.dir;
-        }
-    }
-    
-    // 8. Insere o novo nó interno acima do nó "atual" que paramos.
-    TipoArvore novoInterno = CriaNoInterno(i, char_comp, NULL, NULL);
-    
-    // Define os filhos do novo nó interno
-    if (charK < char_comp) {
-        novoInterno->NO.NInterno.esq = novoExterno;
-        novoInterno->NO.NInterno.dir = atual;
-    } else {
-        novoInterno->NO.NInterno.esq = atual;
-        novoInterno->NO.NInterno.dir = novoExterno;
-    }
-    
-    // Conecta o pai ao novo nó interno
-    if (pai == NULL) {
-        *t = novoInterno; // Nova raiz
-    } else {
-        char c = charAt(chave, lenK, pai->NO.NInterno.index);
-        if (c < pai->NO.NInterno.char_comparacao) {
-            pai->NO.NInterno.esq = novoInterno;
-        } else {
-            pai->NO.NInterno.dir = novoInterno;
-        }
-    }
+    // faz a insercao real chamando a recursiva do ziviani
+    *t = InsereEntre(chave, idDoc, *t, i, char_comp);
 }
 
 void ImprimePatricia(TipoArvore t) {
