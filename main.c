@@ -135,9 +135,19 @@ int main() {
 
                 t_inicio = clock();
 
-                printf("Construindo indices invertidos (Hash e Patricia)...\n\n");
+                printf("Construindo indices invertidos...\n\n");
+
+                // Tempo da Hash
+                t_inicio = clock();
                 ProcessaColecaoHash(CAMINHO_FABULAS, &colecao, &sw, &tabela, pesos);
+                t_fim = clock();
+                double tempo_hash = ((double)(t_fim - t_inicio)) / CLOCKS_PER_SEC;
+
+                // Tempo da Patricia
+                t_inicio = clock();
                 ProcessaColecaoPatricia(CAMINHO_FABULAS, &colecao, &sw, &raiz);
+                t_fim = clock();
+                double tempo_patricia = ((double)(t_fim - t_inicio)) / CLOCKS_PER_SEC;
 
                 // Calcula n_i a partir da hash já populada
                 n_i = calcular_n_i(&tabela, colecao.N);
@@ -151,11 +161,9 @@ int main() {
                     printf("  Doc %02d: %-20s -> %d termos indexados\n", i + 1, colecao.nomes[i], n_i[i]);
                 }
 
-                t_fim = clock();
-                tempo_gasto = ((double)(t_fim - t_inicio)) / CLOCKS_PER_SEC;
-
                 printf("\nIndices construidos com sucesso!\n");
-                printf("Tempo de construcao: %.4f segundos\n", tempo_gasto);
+                printf("Tempo de construcao (Hash):     %.4f segundos\n", tempo_hash);
+                printf("Tempo de construcao (Patricia): %.4f segundos\n", tempo_patricia);
                 printf("Comparacoes na insercao (Hash): %d\n", tabela.comparacoes_insercao);
                 printf("Comparacoes na insercao (Patricia): %d\n", comparacoes_patricia_insercao);
                 indices_construidos = 1;
