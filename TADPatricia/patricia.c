@@ -12,7 +12,7 @@ void InicializaPatricia(TipoArvore* t) {
 
 // Retorna o caractere na posição i. Trata strings mais curtas que i retornando '\0'
 static inline char charAt(const char* s, int len, Index i) {
-    if (i >= len) return '\0';
+    if (i >= (Index)len) return '\0';
     return s[i];
 }
 

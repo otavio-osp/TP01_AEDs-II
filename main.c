@@ -79,23 +79,23 @@ int main() {
     }
 
     do {
-        printf("\n");
-        printf("────────────────────────────────────────────────\n");
-        printf("   SISTEMA DE BUSCA DE FABULAS - MENU\n");
-        printf("────────────────────────────────────────────────\n");
-        printf(" 1. Receber arquivo de entrada\n");
-        printf(" 2. Construir indices invertidos (HASH)\n");
-        printf(" 3. Imprimir indices invertidos\n");
-        printf(" 4. Realizar busca por termo(s)\n");
-        printf(" 0. Sair\n");
-        printf("────────────────────────────────────────────────\n");
-        printf(" Escolha uma opcao: ");
+        printf("  .___________________________________________________.\n");
+        printf("  |      SISTEMA DE BUSCA DE FABULAS - MENU            |\n");
+        printf("  |___________________________________________________|\n");
+        printf("  |                                                    |\n");
+        printf("  |   [1] Receber arquivo de entrada                   |\n");
+        printf("  |   [2] Construir indices invertidos (HASH)          |\n");
+        printf("  |   [3] Imprimir indices invertidos                  |\n");
+        printf("  |   [4] Realizar busca por termo(s)                  |\n");
+        printf("  |   [0] Sair                                        |\n");
+        printf("  |___________________________________________________|\n");
+        printf("\n  Escolha uma opcao: ");
         scanf("%d", &opcao);
         getchar();
 
         switch(opcao) {
             case 1:
-                printf("\n─── Opcao 1: Receber arquivo de entrada ───\n");
+                printf("\n  >> Opcao 1: Receber arquivo de entrada\n");
 
                 // Reseta estado
                 colecao.N = 0;
@@ -114,7 +114,7 @@ int main() {
                 break;
 
             case 2:
-                printf("\n─── Opcao 2: Construir indices invertidos ───\n");
+                printf("\n  >> Opcao 2: Construir indices invertidos\n");
 
                 if (!entrada_carregada) {
                     printf("Erro: Execute a opcao 1 primeiro para carregar o arquivo de entrada.\n");
@@ -162,29 +162,29 @@ int main() {
                 break;
 
             case 3:
-                printf("\n─── Opcao 3: Imprimir indices invertidos ───\n");
+                printf("\n  >> Opcao 3: Imprimir indices invertidos\n");
 
                 if (!indices_construidos) {
                     printf("Erro: Execute a opcao 2 primeiro para construir os indices.\n");
                     break;
                 }
 
-                printf("\n────────────────────────────────────────────────\n");
-                printf("   INDICE INVERTIDO (TABELA HASH)\n");
-                printf("────────────────────────────────────────────────\n");
-                printf("(Formato: palavra <qtde, idDoc>)\n\n");
+                printf("\n  .___________________________________________________.\n");
+                printf("  |       INDICE INVERTIDO (TABELA HASH)             |\n");
+                printf("  |___________________________________________________|\n");
+                printf("  (Formato: palavra <qtde, idDoc>)\n\n");
                 ImprimeTabelaHashOrdenada(&tabela);
 
-                printf("\n────────────────────────────────────────────────\n");
-                printf("   INDICE INVERTIDO (ARVORE PATRICIA)\n");
-                printf("────────────────────────────────────────────────\n");
-                printf("(Formato: palavra <qtde, idDoc>)\n\n");
+                printf("\n  .___________________________________________________.\n");
+                printf("  |     INDICE INVERTIDO (ARVORE PATRICIA)           |\n");
+                printf("  |___________________________________________________|\n");
+                printf("  (Formato: palavra <qtde, idDoc>)\n\n");
                 ImprimePatricia(raiz);
-                printf("\n─── FIM DO INDICE PATRICIA ───\n");
+                printf("\n  --- FIM DOS INDICES ---\n");
                 break;
 
             case 4:
-                printf("\n─── Opcao 4: Realizar busca por termo(s) ───\n");
+                printf("\n  >> Opcao 4: Realizar busca por termo(s)\n");
 
                 if (!indices_construidos) {
                     printf("Erro: Execute a opcao 2 primeiro para construir os indices.\n");
