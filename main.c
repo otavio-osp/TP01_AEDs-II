@@ -81,14 +81,14 @@ int main() {
     do {
         printf("  .___________________________________________________.\n");
         printf("  |      SISTEMA DE BUSCA DE FABULAS - MENU            |\n");
-        printf("  |___________________________________________________|\n");
+        printf("  |____________________________________________________|\n");
         printf("  |                                                    |\n");
         printf("  |   [1] Receber arquivo de entrada                   |\n");
         printf("  |   [2] Construir indices invertidos (HASH)          |\n");
         printf("  |   [3] Imprimir indices invertidos                  |\n");
         printf("  |   [4] Realizar busca por termo(s)                  |\n");
-        printf("  |   [0] Sair                                        |\n");
-        printf("  |___________________________________________________|\n");
+        printf("  |   [0] Sair                                         |\n");
+        printf("  |____________________________________________________|\n");
         printf("\n  Escolha uma opcao: ");
         scanf("%d", &opcao);
         getchar();
@@ -169,14 +169,14 @@ int main() {
                     break;
                 }
 
-                printf("\n  .___________________________________________________.\n");
-                printf("  |       INDICE INVERTIDO (TABELA HASH)             |\n");
+                printf("\n.___________________________________________________.\n");
+                printf("  |        INDICE INVERTIDO (TABELA HASH)             |\n");
                 printf("  |___________________________________________________|\n");
                 printf("  (Formato: palavra <qtde, idDoc>)\n\n");
                 ImprimeTabelaHashOrdenada(&tabela);
 
-                printf("\n  .___________________________________________________.\n");
-                printf("  |     INDICE INVERTIDO (ARVORE PATRICIA)           |\n");
+                printf("\n.___________________________________________________.\n");
+                printf("  |      INDICE INVERTIDO (ARVORE PATRICIA)           |\n");
                 printf("  |___________________________________________________|\n");
                 printf("  (Formato: palavra <qtde, idDoc>)\n\n");
                 ImprimePatricia(raiz);
