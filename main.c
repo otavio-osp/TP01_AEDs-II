@@ -80,22 +80,22 @@ int main() {
 
     do {
         printf("\n");
-        printf("============================================\n");
+        printf("────────────────────────────────────────────────\n");
         printf("   SISTEMA DE BUSCA DE FABULAS - MENU\n");
-        printf("============================================\n");
+        printf("────────────────────────────────────────────────\n");
         printf(" 1. Receber arquivo de entrada\n");
         printf(" 2. Construir indices invertidos (HASH)\n");
         printf(" 3. Imprimir indices invertidos\n");
         printf(" 4. Realizar busca por termo(s)\n");
         printf(" 0. Sair\n");
-        printf("--------------------------------------------\n");
+        printf("────────────────────────────────────────────────\n");
         printf(" Escolha uma opcao: ");
         scanf("%d", &opcao);
         getchar();
 
         switch(opcao) {
             case 1:
-                printf("\n--- Opcao 1: Receber arquivo de entrada ---\n");
+                printf("\n─── Opcao 1: Receber arquivo de entrada ───\n");
 
                 // Reseta estado
                 colecao.N = 0;
@@ -114,7 +114,7 @@ int main() {
                 break;
 
             case 2:
-                printf("\n--- Opcao 2: Construir indices invertidos ---\n");
+                printf("\n─── Opcao 2: Construir indices invertidos ───\n");
 
                 if (!entrada_carregada) {
                     printf("Erro: Execute a opcao 1 primeiro para carregar o arquivo de entrada.\n");
@@ -162,26 +162,29 @@ int main() {
                 break;
 
             case 3:
-                printf("\n--- Opcao 3: Imprimir indices invertidos ---\n");
+                printf("\n─── Opcao 3: Imprimir indices invertidos ───\n");
 
                 if (!indices_construidos) {
                     printf("Erro: Execute a opcao 2 primeiro para construir os indices.\n");
                     break;
                 }
 
-                printf("\n=== INDICE INVERTIDO (TABELA HASH) ===\n");
+                printf("\n────────────────────────────────────────────────\n");
+                printf("   INDICE INVERTIDO (TABELA HASH)\n");
+                printf("────────────────────────────────────────────────\n");
                 printf("(Formato: palavra <qtde, idDoc>)\n\n");
                 ImprimeTabelaHashOrdenada(&tabela);
-                printf("\n=== FIM DO INDICE HASH ===\n");
 
-                printf("\n=== INDICE INVERTIDO (ARVORE PATRICIA) ===\n");
+                printf("\n────────────────────────────────────────────────\n");
+                printf("   INDICE INVERTIDO (ARVORE PATRICIA)\n");
+                printf("────────────────────────────────────────────────\n");
                 printf("(Formato: palavra <qtde, idDoc>)\n\n");
                 ImprimePatricia(raiz);
-                printf("\n=== FIM DO INDICE PATRICIA ===\n");
+                printf("\n─── FIM DO INDICE PATRICIA ───\n");
                 break;
 
             case 4:
-                printf("\n--- Opcao 4: Realizar busca por termo(s) ---\n");
+                printf("\n─── Opcao 4: Realizar busca por termo(s) ───\n");
 
                 if (!indices_construidos) {
                     printf("Erro: Execute a opcao 2 primeiro para construir os indices.\n");
@@ -224,14 +227,14 @@ int main() {
                 char consulta_patricia[MAX_LINHA];
                 strcpy(consulta_patricia, consulta);
 
-                // === BUSCA VIA HASH ===
+                // BUSCA HASH
                 t_inicio = clock();
                 realizar_busca(consulta, &tabela, pesos, &colecao, n_i);
                 t_fim = clock();
                 tempo_gasto = ((double)(t_fim - t_inicio)) / CLOCKS_PER_SEC;
                 printf("Tempo da busca (Hash): %.4f segundos\n", tempo_gasto);
 
-                // === BUSCA VIA PATRICIA ===
+                // BUSCA PATRICIA
                 t_inicio = clock();
                 realizar_busca_patricia(consulta_patricia, raiz, &colecao, n_i);
                 t_fim = clock();
