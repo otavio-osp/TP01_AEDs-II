@@ -84,7 +84,7 @@ int main() {
         printf("  |____________________________________________________|\n");
         printf("  |                                                    |\n");
         printf("  |   [1] Receber arquivo de entrada                   |\n");
-        printf("  |   [2] Construir indices invertidos (HASH)          |\n");
+        printf("  |   [2] Construir indices invertidos                 |\n");
         printf("  |   [3] Imprimir indices invertidos                  |\n");
         printf("  |   [4] Realizar busca por termo(s)                  |\n");
         printf("  |   [0] Sair                                         |\n");
